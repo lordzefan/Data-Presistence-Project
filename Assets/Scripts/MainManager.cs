@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -11,10 +12,12 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text highScoreText;
     public GameObject GameOverText;
-    
+    public GameObject enterInput;
     private bool m_Started = false;
     private int m_Points;
+    public TMP_InputField inputPlayer;
     
     private bool m_GameOver = false;
 
@@ -22,6 +25,7 @@ public class MainManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        inputPlayer.gameObject.SetActive(false);
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -36,6 +40,15 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+        
+        highScoreText.text = "Best Score: " + DataManager.instance.namePlayerBestScore + " : "+ DataManager.instance.pointScore;
+        
+
+        
+    //    if (DataManager.instance.pointScore == 0)
+    //    {
+    //          highScoreText.text = "Best Score: " + namePlayerResult + " : "+m_Points;
+    //    }
     }
 
     private void Update()
@@ -53,13 +66,13 @@ public class MainManager : MonoBehaviour
                 Ball.AddForce(forceDir * 2.0f, ForceMode.VelocityChange);
             }
         }
-        else if (m_GameOver)
-        {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            }
-        }
+        // else if (m_GameOver)
+        // {
+        //     if (Input.GetKeyDown(KeyCode.Space))
+        //     {
+        //         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        //     }
+        // }
     }
 
     void AddPoint(int point)
@@ -72,5 +85,22 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        enterInput.SetActive(true);
+        if (m_Points > DataManager.instance.pointScore)
+        {
+           inputPlayer.gameObject.SetActive(true); 
+        }
+    }
+
+    public void BestScore()
+    {
+        if (m_Points > DataManager.instance.pointScore)
+        {
+            DataManager.instance.pointScore = m_Points;
+            DataManager.instance.namePlayerBestScore = inputPlayer.text; 
+            DataManager.instance.SaveNameScore();
+        }
+        SceneManager.LoadScene("menu");
+        
     }
 }
